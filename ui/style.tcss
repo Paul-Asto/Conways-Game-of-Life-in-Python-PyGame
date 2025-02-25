@@ -1,0 +1,18 @@
+#main_content{
+    layout: grid;
+    grid-size: 2 3;
+    grid-columns: 148 50;
+    grid-rows: 4 17 28 ;
+}
+
+#title_app{
+
+}
+
+ConweyBoard{
+    row-span: 3;
+}
+
+MacroBoard{
+
+}
