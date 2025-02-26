@@ -1,5 +1,5 @@
-from core.game import ConwayGame
-from ui.app import ConwayApp
+from src.core.game import ConwayGame
+from src.ui.app import ConwayApp
 
 
 game  = ConwayGame()

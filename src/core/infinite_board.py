@@ -1,5 +1,5 @@
 from core.chunk import Chunk
-from core.cardinal import Coord
+from src.cardinal import Coord
 
 class InfiniteBoard:
 

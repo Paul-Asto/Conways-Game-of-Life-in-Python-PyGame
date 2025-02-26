@@ -1,4 +1,4 @@
-from cardinal import Coord
+from src.cardinal import Coord
 
 
 

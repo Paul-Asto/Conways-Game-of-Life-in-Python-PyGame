@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 from textual.app import App
 from textual.widgets import Button, Label
 from textual.containers import Horizontal, Vertical
-from ui.widgets import ConweyBoard, MacroBoard
+from src.ui.widgets import ConweyBoard, MacroBoard
 
 
 if TYPE_CHECKING:
