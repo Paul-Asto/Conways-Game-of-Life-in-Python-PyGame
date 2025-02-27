@@ -112,11 +112,20 @@ class Coord(CardinalPair):
         return Coord(self.y, self.x)
     
 
+VECTOR_UP:          Vector = Vector(-1, 0)
+VECTOR_DOWN:        Vector = Vector(1, 0)
+VECTOR_LEFT:        Vector = Vector(0, -1)
+VECTOR_RIGHT:       Vector = Vector(0, 1)
+VECTOR_UP_LEFT:     Vector = Vector(-1, -1)
+VECTOR_UP_RIGHT:    Vector = Vector(-1, 1)
+VECTOR_DOWN_LEFT:   Vector = Vector(1, -1)
+VECTOR_DOWN_RIGHT:  Vector = Vector(1, 1)
+
 
 from typing import Generator
 
 
-def gen_coord_off_matriz(min_range_y: int, max_range_y: int, min_range_x: int, max_range_x: int) -> Generator[Coord]:
+def gen_coord_off_matriz(min_range_y: int, max_range_y: int, min_range_x: int, max_range_x: int) -> Generator[tuple [int, int], None, None]:
     for y in range(min_range_y, max_range_y):
         for x in range(min_range_x, max_range_x):
-            yield Coord(y, x)
+            yield (y, x)
