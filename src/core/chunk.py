@@ -4,16 +4,16 @@ from typing import Generic, TypeVar
 
 class Cell:
     def __init__(self):
-        self.__state: bool = False
+        self.private_state: bool = False
 
         
     @property
     def state(self) -> bool:
-        return self.__state
+        return self.private_state
     
     @state.setter
     def state(self, value: bool):
-        self.__state = value
+        self.private_state = value
 
 
 T = TypeVar("T", bound= Cell)

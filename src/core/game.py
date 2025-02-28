@@ -1,5 +1,5 @@
+from typing import TYPE_CHECKING
 from src.core.infinite_board import InfiniteBoard
-from src.core.chunk import Cell
 from src.cardinal import (
     Coord,
 
@@ -13,17 +13,20 @@ from src.cardinal import (
     VECTOR_DOWN_RIGHT
     )
 
+if TYPE_CHECKING:
+    from src.core.chunk import Cell
+
 
 class AdminCell:
 
     def __init__(self):
-        self._active_cells: dict[tuple[int, int], Cell] = {}
+        self._active_cells: dict[tuple[int, int], "Cell"] = {}
 
-        self._cells_to_revive: list[tuple[tuple[int, int], Cell]] = []
-        self._cells_to_kill: list[Cell] = []
+        self._cells_to_revive: list[tuple[tuple[int, int], "Cell"]] = []
+        self._cells_to_kill: list["Cell"] = []
 
     @property
-    def active_cells(self) -> list[tuple[tuple[int, int], Cell]]:
+    def active_cells(self) -> list[tuple[tuple[int, int], "Cell"]]:
         return list(self._active_cells.items())
 
     @property
@@ -31,12 +34,17 @@ class AdminCell:
         return list(self._active_cells.keys())
 
 
-    def add_cells_active(self, coord: tuple[int, int], cell: Cell):
+    def add_cell_active(self, coord: tuple[int, int], cell: "Cell"):
         cell.state = True
         self._active_cells[coord] = cell
 
+    
+    def delete_cell_active(self, coord: tuple[int, int]):
+        cell = self._active_cells.pop(coord)
+        cell.state = False
 
-    def add_cell_to_revive(self, coord: tuple[int, int], cell: Cell):
+
+    def add_cell_to_revive(self, coord: tuple[int, int], cell: "Cell"):
         self._cells_to_revive.append((coord, cell))
     
 
@@ -51,7 +59,7 @@ class AdminCell:
 
     def revive_cells(self):
         for coord, cell in self._cells_to_revive:
-            self.add_cells_active(coord, cell)
+            self.add_cell_active(coord, cell)
         
         self._cells_to_revive.clear()
 
@@ -110,7 +118,11 @@ class ConwayGame:
 
     def activate_cell(self, coord: tuple[int, int]):
         cell = self.get_cell(coord)
-        self.admin_cells.add_cells_active(coord, cell)
+        self.admin_cells.add_cell_active(coord, cell)
+
+    def deactivate_cell(self, coord: tuple[int, int]):
+        self.admin_cells.delete_cell_active(coord)
+
 
 
     def activate_cells(self, *coords: tuple[int, int]):
@@ -140,12 +152,12 @@ class ConwayGame:
                 coord_base + VECTOR_DOWN_RIGHT,
             ]
 
-            cells_around: list[Cell] = [
+            cells_around: list["Cell"] = [
                 self.get_cell(coord) 
                 for coord in coords_analyze 
             ]
 
-            active_cells_around: list[Cell] = [cell for cell in cells_around if cell.state]
+            active_cells_around: list["Cell"] = [cell for cell in cells_around if cell.state]
             
             n_active_cells_around: int = len(active_cells_around)
 

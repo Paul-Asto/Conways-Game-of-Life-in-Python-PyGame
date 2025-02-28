@@ -1,5 +1,4 @@
 from src.core.chunk import Chunk, Cell
-
 from enum import Enum, auto
 from dataclasses import dataclass
 
@@ -22,7 +21,8 @@ class NavCardinal:
 
 class InfiniteBoard:
 
-    def __init__(self, chunk_size_y: int, chunk_size_x: int):
+    def __init__(self, chunk_size_y: int, chunk_size_x: int, cell_class: type = Cell):
+        self.cell_class: type = cell_class
         self.chunk_size_y: int = chunk_size_y
         self.chunk_size_x: int = chunk_size_x
 
@@ -39,7 +39,7 @@ class InfiniteBoard:
 
 
     def create_chunk(self, quadrant: Quadrant, coord: tuple[int, int]): 
-        self.content[quadrant][coord] = Chunk(self.chunk_size_y, self.chunk_size_x)
+        self.content[quadrant][coord] = Chunk(self.chunk_size_y, self.chunk_size_x, self.cell_class)
 
 
     def get_and_create_chunk(self, quadrant: Quadrant, coord: tuple[int, int]) -> Chunk:
