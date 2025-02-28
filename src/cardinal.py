@@ -124,7 +124,6 @@ VECTOR_DOWN_RIGHT:  Vector = Vector(1, 1)
 
 from typing import Generator
 
-
 def gen_coord_off_matriz(min_range_y: int, max_range_y: int, min_range_x: int, max_range_x: int) -> Generator[tuple [int, int], None, None]:
     for y in range(min_range_y, max_range_y):
         for x in range(min_range_x, max_range_x):

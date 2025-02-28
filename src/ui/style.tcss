@@ -1,8 +1,11 @@
 #main_content{
+    height: 100%;
+    width: 100%;
     layout: grid;
     grid-size: 2 3;
     grid-columns: 148 50;
     grid-rows: 4 17 28 ;
+    background: gray;
 }
 
 #title_app{
@@ -11,6 +14,18 @@
 
 ConweyBoard{
     row-span: 3;
+    background: blue;
+    height: 36;
+    width: 135;
+    layout: grid;
+    grid-size: 45 36;
+}
+
+
+ReactBlock{
+    height: 1;
+    width: 3;
+    background: black;
 }
 
 MacroBoard{
