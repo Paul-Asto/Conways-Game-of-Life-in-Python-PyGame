@@ -7,7 +7,7 @@ from src.ui.widgets import ReactCell
 from src.ui.app import ConwayApp
 
 
-board = InfiniteBoard(10, 10, ReactCell)
+board = InfiniteBoard(ReactCell)
 game  = ConwayGame(board)
 app = ConwayApp(game)
 

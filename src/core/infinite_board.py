@@ -1,6 +1,6 @@
-from src.core.chunk import Chunk, Cell
+from src.core.chunk import Cell
 from enum import Enum, auto
-from dataclasses import dataclass
+
 
 
 class Quadrant(Enum):
@@ -11,22 +11,11 @@ class Quadrant(Enum):
 
 
 
-@dataclass
-class NavCardinal:
-    quadrant: Quadrant
-    coord_chunk: tuple[int]
-    coord_cell: tuple[int]
-
-
-
 class InfiniteBoard:
 
-    def __init__(self, chunk_size_y: int, chunk_size_x: int, cell_class: type = Cell):
+    def __init__(self, cell_class: type = Cell):
         self.cell_class: type = cell_class
-        self.chunk_size_y: int = chunk_size_y
-        self.chunk_size_x: int = chunk_size_x
-
-        self.content: dict[Quadrant, dict[tuple[int, int], Chunk]] = {
+        self.content: dict[Quadrant, dict[tuple[int, int], Cell]] = {
             Quadrant.POS_Y_POS_X : {},
             Quadrant.POS_Y_NEG_X : {},
             Quadrant.NEG_Y_POS_X : {},
@@ -34,25 +23,26 @@ class InfiniteBoard:
         }
 
 
-    def get_chunk(self, quadrant: Quadrant, coord: tuple[int, int]) -> Chunk | None: 
+    def get_cell(self, quadrant: Quadrant, coord: tuple[int, int]) -> Cell | None: 
         return self.content[quadrant].get(coord, None)
 
 
-    def create_chunk(self, quadrant: Quadrant, coord: tuple[int, int]): 
-        self.content[quadrant][coord] = Chunk(self.chunk_size_y, self.chunk_size_x, self.cell_class)
+    def create_cell(self, quadrant: Quadrant, coord: tuple[int, int]): 
+        self.content[quadrant][coord] = self.cell_class()
 
 
-    def get_and_create_chunk(self, quadrant: Quadrant, coord: tuple[int, int]) -> Chunk:
-        chunk = self.get_chunk(quadrant, coord)
+    def get_and_create_cell(self, quadrant: Quadrant, coord: tuple[int, int]) -> Cell:
+        cell = self.get_cell(quadrant, coord)
 
-        if chunk == None:
-            self.create_chunk(quadrant, coord)
-            chunk = self.get_chunk(quadrant, coord)
+        if cell == None:
+            self.create_cell(quadrant, coord)
+            cell = self.get_cell(quadrant, coord)
 
-        return chunk
+        return cell
+    
 
 
-    def get_nav_cardinal_off_coord(self, coord: tuple[int, int]) -> NavCardinal:
+    def get_data_nav_board_off_coord(self, coord: tuple[int, int]) -> tuple[Quadrant, tuple[int, int]]:
         y, x = coord
 
         y_is_pos = y >= 0
@@ -79,7 +69,4 @@ class InfiniteBoard:
         y = abs(y)
         x = abs(x)
 
-        y_chunk, y_cell = divmod(y, self.chunk_size_y)
-        x_chunk, x_cell = divmod(x, self.chunk_size_x)
-
-        return NavCardinal(quadrant, (y_chunk, x_chunk), (y_cell, x_cell))
+        return (quadrant, (y, x))

@@ -131,10 +131,8 @@ class ConwayGame:
 
 
     def get_cell(self, coord: tuple[int, int]):
-        nav = self.board.get_nav_cardinal_off_coord(coord)
-        chunk = self.board.get_and_create_chunk(nav.quadrant, nav.coord_chunk)
-
-        return chunk.get_cell(nav.coord_cell)
+        quadrant, coord_cell = self.board.get_data_nav_board_off_coord(coord)
+        return self.board.get_and_create_cell(quadrant, coord_cell)
 
 
     def analyze_cells(self):

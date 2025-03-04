@@ -17,7 +17,7 @@ from time import sleep
 import keyboard
 
 
-board = InfiniteBoard(10, 10)
+board = InfiniteBoard()
 game  = ConwayGame(board)
 
 class ViewBoard:
@@ -36,18 +36,18 @@ class ViewBoard:
             for _ in range(0, self.size_x):
                 coord = next(generator)
 
-                nav = game.board.get_nav_cardinal_off_coord(coord)
-                chunk = game.board.get_chunk(nav.quadrant, nav.coord_chunk)
+                quadrant, coord_cell = game.board.get_data_nav_board_off_coord(coord)
+                cell = game.board.get_cell(quadrant, coord_cell)
 
-                if chunk == None:
-                    result += ".."
+                if cell == None:
+                    result += "  "
                     continue
 
-                if chunk.get_cell(nav.coord_cell).state:
+                if cell.state:
                     result += "[]"
                 
                 else:
-                    result += "OO"
+                    result += ".."
 
             result += "\n"
         
@@ -141,7 +141,7 @@ while True:
     print()
     print(f"coord: actual: ", view_board.coords[0].value)
     print(f"Total de celdas vivas: {len(game.admin_cells._active_cells)}")
-    print(f"Total de chunks cargados: {sum([len(d) for d in game.board.content.values()])}")
+    print(f"Total de celdas cargados: {sum([len(d) for d in game.board.content.values()])}")
     
 
     if len(game.admin_cells.active_cells) == 0:
