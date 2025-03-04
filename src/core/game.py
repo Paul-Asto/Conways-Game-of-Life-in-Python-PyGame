@@ -131,8 +131,7 @@ class ConwayGame:
 
 
     def get_cell(self, coord: tuple[int, int]):
-        quadrant, coord_cell = self.board.get_data_nav_board_off_coord(coord)
-        return self.board.get_and_create_cell(quadrant, coord_cell)
+        return self.board.get_and_create_cell(coord)
 
 
     def analyze_cells(self):
@@ -151,7 +150,7 @@ class ConwayGame:
             ]
 
             cells_around: list["Cell"] = [
-                self.get_cell(coord) 
+                self.get_cell(coord.value) 
                 for coord in coords_analyze 
             ]
 

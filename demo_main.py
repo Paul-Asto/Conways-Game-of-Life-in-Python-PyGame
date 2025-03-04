@@ -35,9 +35,7 @@ class ViewBoard:
         for _ in range(0, self.size_y):
             for _ in range(0, self.size_x):
                 coord = next(generator)
-
-                quadrant, coord_cell = game.board.get_data_nav_board_off_coord(coord)
-                cell = game.board.get_cell(quadrant, coord_cell)
+                cell = game.board.get_cell(coord.value)
 
                 if cell == None:
                     result += "  "
@@ -141,7 +139,7 @@ while True:
     print()
     print(f"coord: actual: ", view_board.coords[0].value)
     print(f"Total de celdas vivas: {len(game.admin_cells._active_cells)}")
-    print(f"Total de celdas cargados: {sum([len(d) for d in game.board.content.values()])}")
+    print(f"Total de celdas cargados: {len(game.board.content.values())}")
     
 
     if len(game.admin_cells.active_cells) == 0:
