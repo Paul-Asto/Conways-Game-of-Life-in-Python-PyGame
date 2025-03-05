@@ -20,7 +20,6 @@ from src.cardinal import (
 if TYPE_CHECKING:
     from textual.events import Key
     from src.core.game import ConwayGame
-    from src.core.chunk import  Cell
 
 
 class ConwayApp(App):
@@ -49,7 +48,7 @@ class ConwayApp(App):
 
     def on_mount(self):
         self.register_observeds_off_conwey_board()
-        
+
 
     @on(Button.Pressed, "#btn_iniciar")
     def init_game(self):
@@ -66,7 +65,7 @@ class ConwayApp(App):
     def register_observeds_off_conwey_board(self):
         for block in self.conwey_board.children:
             coord: tuple = block.coord.value
-            cell: "Cell" = self.game.get_cell(coord)
+            cell = self.game.get_state_cell(coord)
 
             block.observed = cell
             block.react_changes()

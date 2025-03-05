@@ -28,14 +28,14 @@ class ViewBoard:
 
         self.coords: list[Coord] = [Coord(*coord) for coord in gen_coord_off_matriz(0, self.size_y, 0, self.size_x)]
 
-    def view(self):
+    def view(self) -> str:
         result = ""
         generator = iter(self.coords)
 
         for _ in range(0, self.size_y):
             for _ in range(0, self.size_x):
                 coord = next(generator)
-                state_cell = game.get_cell(coord.value)
+                state_cell = game.get_state_cell(coord.value)
 
                 if state_cell:
                     result += "[]"
@@ -129,18 +129,16 @@ game.activate_cells(
 )
 
 ciclos = 1
+
 while True:
     print("\033[H\033[J", end="")
     print(view_board.view())
     print()
-    print(f"coord: actual: ", view_board.coords[0].value)
+    print(f"Coordenada: actual: ", view_board.coords[0].value)
     print(f"Total de celdas vivas: {len(game.board.content)}")
-
-    
 
     if len(game.board.content) == 0:
         break
-
     
     if keyboard.is_pressed("up"):
         view_board.mov_coords(VECTOR_UP)

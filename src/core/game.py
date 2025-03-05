@@ -59,16 +59,16 @@ class ConwayGame:
     def activate_cell(self, coord: tuple[int, int]):
         self.board.register_cell_life(coord)
 
-    def deactivate_cell(self, coord: tuple[int, int]):
-        self.board.register_cell_dead(coord)
-
-
     def activate_cells(self, *coords: tuple[int, int]):
         for coord in coords:
             self.activate_cell(coord)
 
 
-    def get_cell(self, coord: tuple[int, int]):
+    def deactivate_cell(self, coord: tuple[int, int]):
+        self.board.register_cell_dead(coord)
+
+
+    def get_state_cell(self, coord: tuple[int, int]) -> bool:
         return self.board.get_state_cell(coord)
 
 
@@ -88,12 +88,11 @@ class ConwayGame:
             ]
 
             state_cells_around: list[bool] = [
-                self.get_cell(coord.value) 
+                self.get_state_cell(coord.value) 
                 for coord in coords_analyze 
             ]
 
             active_cells_around: list[bool] = [state for state in state_cells_around if state]
-            
             n_active_cells_around: int = len(active_cells_around)
 
             condition_to_kill: bool = n_active_cells_around not in self.n_cells_around_for_live
@@ -112,7 +111,7 @@ class ConwayGame:
             if not condition_to_revive:
                 continue
 
-            state_cell = self.get_cell(coord)
+            state_cell: bool = self.get_state_cell(coord)
 
             if state_cell:
                 continue
