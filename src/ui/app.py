@@ -49,48 +49,7 @@ class ConwayApp(App):
 
     def on_mount(self):
         self.register_observeds_off_conwey_board()
-        gen_nav_spacial = [    
-            (6, 0),
-            (7, 0),
-            (6, 1),
-            (7, 1),
-            (6, 10),
-            (7, 10),
-            (8, 10),
-            (5, 11),
-            (9, 11),
-            (4, 12),
-            (10, 12),
-            (7, 14),
-            (4, 13),
-            (10, 13),
-            (5, 15),
-            (9, 15),
-            (6, 16),
-            (8, 16),
-            (7, 16),
-            (7, 17),
-            (4, 20),
-            (5, 20),
-            (6, 20),
-            (4, 21),
-            (5, 21),
-            (6, 21),
-            (3, 22),
-            (7, 22),
-            (2, 24),
-            (3, 24),
-            (7, 24),
-            (8, 24),
-            (4, 34),
-            (5, 34),
-            (4, 35),
-            (5, 35),
-        ]
-        self.game.activate_cells(
-            *gen_nav_spacial
-        )
-
+        
 
     @on(Button.Pressed, "#btn_iniciar")
     def init_game(self):

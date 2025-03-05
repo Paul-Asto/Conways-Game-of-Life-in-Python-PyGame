@@ -1,5 +1,5 @@
 from src.core.game import ConwayGame
-from src.core.infinite_board import InfiniteBoard
+from src.core.infinite_board import ConwaysInfiniteBoard
 
 from src.cardinal import gen_coord_off_matriz                
 
@@ -17,7 +17,7 @@ from time import sleep
 import keyboard
 
 
-board = InfiniteBoard()
+board = ConwaysInfiniteBoard()
 game  = ConwayGame(board)
 
 class ViewBoard:
@@ -35,13 +35,9 @@ class ViewBoard:
         for _ in range(0, self.size_y):
             for _ in range(0, self.size_x):
                 coord = next(generator)
-                cell = game.board.get_cell(coord.value)
+                state_cell = game.get_cell(coord.value)
 
-                if cell == None:
-                    result += "  "
-                    continue
-
-                if cell.state:
+                if state_cell:
                     result += "[]"
                 
                 else:
@@ -138,11 +134,11 @@ while True:
     print(view_board.view())
     print()
     print(f"coord: actual: ", view_board.coords[0].value)
-    print(f"Total de celdas vivas: {len(game.admin_cells._active_cells)}")
-    print(f"Total de celdas cargados: {len(game.board.content.values())}")
+    print(f"Total de celdas vivas: {len(game.board.content)}")
+
     
 
-    if len(game.admin_cells.active_cells) == 0:
+    if len(game.board.content) == 0:
         break
 
     

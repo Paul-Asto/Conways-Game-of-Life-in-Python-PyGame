@@ -1,5 +1,4 @@
-from typing import TYPE_CHECKING
-from src.core.infinite_board import InfiniteBoard
+from src.core.infinite_board import ConwaysInfiniteBoard
 from src.cardinal import (
     Coord,
 
@@ -12,63 +11,6 @@ from src.cardinal import (
     VECTOR_DOWN_LEFT,
     VECTOR_DOWN_RIGHT
     )
-
-if TYPE_CHECKING:
-    from src.core.chunk import Cell
-
-
-class AdminCell:
-
-    def __init__(self):
-        self._active_cells: dict[tuple[int, int], "Cell"] = {}
-
-        self._cells_to_revive: list[tuple[tuple[int, int], "Cell"]] = []
-        self._cells_to_kill: list["Cell"] = []
-
-    @property
-    def active_cells(self) -> list[tuple[tuple[int, int], "Cell"]]:
-        return list(self._active_cells.items())
-
-    @property
-    def active_coords(self) -> list[tuple[int, int]]:
-        return list(self._active_cells.keys())
-
-
-    def add_cell_active(self, coord: tuple[int, int], cell: "Cell"):
-        cell.state = True
-        self._active_cells[coord] = cell
-
-    
-    def delete_cell_active(self, coord: tuple[int, int]):
-        cell = self._active_cells.pop(coord)
-        cell.state = False
-
-
-    def add_cell_to_revive(self, coord: tuple[int, int], cell: "Cell"):
-        self._cells_to_revive.append((coord, cell))
-    
-
-    def add_cell_to_kill(self, coord: tuple[int, int]):
-        cell = self._active_cells.pop(coord, None)
-
-        if cell == None:
-            raise Exception(f"La celda de la coordenada {coord} no se encuentra activa, por lo tanto no se puede añadir a la lista de muerte")
-
-        self._cells_to_kill.append(cell)
-    
-
-    def revive_cells(self):
-        for coord, cell in self._cells_to_revive:
-            self.add_cell_active(coord, cell)
-        
-        self._cells_to_revive.clear()
-
-
-    def kill_cells(self):
-        for cell in self._cells_to_kill:
-            cell.state = False
-        
-        self._cells_to_kill.clear()
 
 
 
@@ -109,20 +51,16 @@ class ConwayGame:
     n_cells_around_for_live: tuple[int, int] = (2, 3)
     n_cells_around_for_revive: int = 3
 
-    def __init__(self, board: InfiniteBoard):
-        self.board: InfiniteBoard = board
-
+    def __init__(self, board: ConwaysInfiniteBoard):
+        self.board: ConwaysInfiniteBoard = board
         self.counter_coords: CounterItems[tuple[int, int]] = CounterItems()
-        self.admin_cells: AdminCell = AdminCell()
 
 
     def activate_cell(self, coord: tuple[int, int]):
-        cell = self.get_cell(coord)
-        self.admin_cells.add_cell_active(coord, cell)
+        self.board.register_cell_life(coord)
 
     def deactivate_cell(self, coord: tuple[int, int]):
-        self.admin_cells.delete_cell_active(coord)
-
+        self.board.register_cell_dead(coord)
 
 
     def activate_cells(self, *coords: tuple[int, int]):
@@ -131,11 +69,11 @@ class ConwayGame:
 
 
     def get_cell(self, coord: tuple[int, int]):
-        return self.board.get_and_create_cell(coord)
+        return self.board.get_state_cell(coord)
 
 
     def analyze_cells(self):
-        for coord in self.admin_cells.active_coords:
+        for coord in self.board.coords_off_active_cell:
             coord_base = Coord(*coord) 
             
             coords_analyze: list[Coord] = [
@@ -149,19 +87,19 @@ class ConwayGame:
                 coord_base + VECTOR_DOWN_RIGHT,
             ]
 
-            cells_around: list["Cell"] = [
+            state_cells_around: list[bool] = [
                 self.get_cell(coord.value) 
                 for coord in coords_analyze 
             ]
 
-            active_cells_around: list["Cell"] = [cell for cell in cells_around if cell.state]
+            active_cells_around: list[bool] = [state for state in state_cells_around if state]
             
             n_active_cells_around: int = len(active_cells_around)
 
             condition_to_kill: bool = n_active_cells_around not in self.n_cells_around_for_live
             
             if condition_to_kill:
-                self.admin_cells.add_cell_to_kill(coord)
+                self.board.add_cell_to_kill(coord)
 
             # Sirve para detectar las coordenadas de las celdas que pueden revivir
             self.counter_coords.add_items(*[coord.value for coord in coords_analyze])
@@ -174,12 +112,12 @@ class ConwayGame:
             if not condition_to_revive:
                 continue
 
-            cell = self.get_cell(coord)
+            state_cell = self.get_cell(coord)
 
-            if cell.state:
+            if state_cell:
                 continue
 
-            self.admin_cells.add_cell_to_revive(coord, cell)
+            self.board.add_cell_to_revive(coord)
         
         self.counter_coords.clear()
 
@@ -187,5 +125,5 @@ class ConwayGame:
     def next_turn(self):
         self.analyze_cells()
 
-        self.admin_cells.kill_cells()
-        self.admin_cells.revive_cells()
+        self.board.kill_cells()
+        self.board.revive_cells()
