@@ -1,94 +1,87 @@
-from typing import TYPE_CHECKING
-from textual import on
-from textual.app import App
-from textual.widgets import Button, Label
-from textual.containers import Vertical
+
+import pygame as pg
+from src.core.game import ConwayGame
+from src.ui.widgets import ViewBoard
+from time import sleep
+from src.colors import COLOR_BLACK, COLOR_WHITE
 import asyncio
-
-
-
-from src.ui.widgets import ConweyBoard, MacroBoard
 from src.cardinal import (
-    Coord,
-    VECTOR_DOWN,
     VECTOR_LEFT,
+    VECTOR_DOWN,
     VECTOR_UP,
     VECTOR_RIGHT,
     )
 
+class ConwaysApp:
 
-if TYPE_CHECKING:
-    from textual.events import Key
-    from src.core.game import ConwayGame
-
-
-class ConwayApp(App):
-    CSS_PATH = "style.tcss"
-
-    def __init__(self, game: "ConwayGame"):
-        super().__init__()
-
-        self.game = game
+    def __init__(self, size_window: tuple[int, int], game: ConwayGame, view_board: ViewBoard):
+        self.screen: pg.Surface = pg.display.set_mode(size_window, pg.RESIZABLE | pg.DOUBLEBUF)
+        self.game: ConwayGame = game
+        self.running: bool = True
+        self.view_board: ViewBoard = view_board
 
 
-    def compose(self):
-        with Vertical(id= "main_content"):
-            self.conwey_board = ConweyBoard(36, 45, Coord(-10, -15))
-            yield self.conwey_board
+    async def run(self):
+        pg.init()
+        clock = pg.time.Clock()
 
-            yield Label("CONWEYS GAME OF LIFE", id= "title_app")
-            yield MacroBoard()
+        asyncio.create_task(self.read_events())
+        asyncio.create_task(self.iteration_game())
 
-            with Vertical():
-                yield Button("Iniciar", id= "btn_iniciar")
-                yield Button("Pintar")
-                yield Button("Borrar")
-                yield Button("Salir")
+        while self.running:
+            self.screen.fill((255, 255, 0))
+
+            for coord_cell in  self.game.board.coords_off_active_cell:
+                self.view_board.load_view_rect(coord_cell, COLOR_WHITE)
+
+            # Dibujar la sub-superficie dentro de la pantalla principal
+            self.view_board.load_view(self.screen)
+
+            pg.display.flip()
+            clock.tick(60)
+
+            for coord_cell in  self.game.board.coords_off_active_cell:
+                self.view_board.load_view_rect(coord_cell, COLOR_BLACK)
+
+            await asyncio.sleep(0.1)
 
 
-    def on_mount(self):
-        self.register_observeds_off_conwey_board()
 
+        pg.quit()
 
-    @on(Button.Pressed, "#btn_iniciar")
-    def init_game(self):
-        asyncio.create_task(self.run_cicles())
+    
+    async def read_events(self):
+        while self.running:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    self.running = False
 
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    if self.view_board.verify_click(event):
+                        coord_rect: tuple[int, int] = self.view_board.get_coord_off_event_click(event.pos)
+                        coord_cell: tuple[int, int] = self.view_board.get_coord_off_cell(coord_rect)
 
-    async def run_cicles(self):
-        while True:
-            await asyncio.sleep(0.15)
+                        self.game.switch_cell(coord_cell)
+                        
+
+            keys = pg.key.get_pressed()
+
+            if keys[pg.K_UP]:
+                self.view_board.mov_coord_cursor(VECTOR_UP)
+
+            elif keys[pg.K_DOWN]:
+                self.view_board.mov_coord_cursor(VECTOR_DOWN)
+
+            elif keys[pg.K_LEFT]:
+                self.view_board.mov_coord_cursor(VECTOR_LEFT)
+
+            elif keys[pg.K_RIGHT]:
+                self.view_board.mov_coord_cursor(VECTOR_RIGHT)
+
+            await asyncio.sleep(0.01)
+    
+    
+    async def iteration_game(self):
+        while self.running:
             self.game.next_turn()
-
-
-
-    def register_observeds_off_conwey_board(self):
-        for block in self.conwey_board.children:
-            coord: tuple = block.coord.value
-            cell = self.game.get_state_cell(coord)
-
-            block.observed = cell
-            block.react_changes()
-
-
-    async def on_key(self, event: "Key") -> None:
-        if event.key == "left":
-            self.conwey_board.delet_observeds_off_childen()
-            self.conwey_board.move_coords_off_children(VECTOR_LEFT)
-            self.register_observeds_off_conwey_board()
-
-        elif event.key == "right":
-            self.conwey_board.delet_observeds_off_childen()
-            self.conwey_board.move_coords_off_children(VECTOR_RIGHT)
-            self.register_observeds_off_conwey_board()
-            
-        elif event.key == "up":
-            self.conwey_board.delet_observeds_off_childen()
-            self.conwey_board.move_coords_off_children(VECTOR_UP)
-            self.register_observeds_off_conwey_board()
-            
-        elif event.key == "down":
-            self.conwey_board.delet_observeds_off_childen()
-            self.conwey_board.move_coords_off_children(VECTOR_DOWN)
-            self.register_observeds_off_conwey_board()
-
+            await asyncio.sleep(0.1)

@@ -68,6 +68,15 @@ class ConwayGame:
         self.board.register_cell_dead(coord)
 
 
+    def switch_cell(self, coord: tuple[int, int]):
+        state = self.get_state_cell(coord)
+
+        if state:
+            self.deactivate_cell(coord)
+        else:
+            self.activate_cell(coord)
+
+
     def get_state_cell(self, coord: tuple[int, int]) -> bool:
         return self.board.get_state_cell(coord)
 

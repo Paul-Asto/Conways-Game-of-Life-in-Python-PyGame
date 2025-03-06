@@ -1,92 +1,110 @@
-from typing import TYPE_CHECKING
-from textual.widget import Widget
-from textual.containers import Vertical
-from src.cardinal import Coord, Vector, gen_coord_off_matriz
-from src.observer_interface import Observer, Observed
-from src.core.chunk import Cell
+import pygame as pg
+from src.colors import COLOR_BLACK, COLOR_WHITE
+from src.cardinal import (
+    gen_coord_off_matriz,
+    Coord,
+    Vector,
+    )
 
-if TYPE_CHECKING:
-    from src.ui.app import ConwayApp
 
-class ReactCell(Cell, Observed):
+
+
+class ViewBoard:
     
+    def __init__(self, topleft: tuple[int, int], size: tuple[int, int], size_cell: tuple[int, int]):    
+        self.coord_cursor: Coord = Coord(0, 0)
 
-    def __init__(self):
-        super().__init__()
-        Observed.__init__(self) 
+        self.topleft: tuple[int, int] = topleft
         
+        self.size_y: int = size[0]
+        self.size_x: int = size[1]
+
+        self.size_cell_y: int = size_cell[0]
+        self.size_cell_x: int = size_cell[1]
+
+        self.size_board_y: int = self.size_y * self.size_cell_y
+        self.size_board_x: int = self.size_x * self.size_cell_x
+
+
+        self.surface: pg.Surface = pg.Surface((self.size_board_x, self.size_board_y))
+        self.content: dict[tuple[int, int], pg.Rect] = self.gen_init_content()
+
+        self.init_draw()
+
 
     @property
-    def state(self) -> bool:
-        return self.private_state
-    
-    @state.setter
-    def state(self, value: bool):
-        self.private_state = value
-        self.report_changes()
+    def rect(self):
+        return self.surface.get_rect(center= (self.size_board_y // 2, self.size_board_x // 2))
 
-
-
-class ReactBlock(Widget, Observer[ReactCell]):
-    app: "ConwayApp"
-    
-    def __init__(self, coord: Coord):
-        super().__init__()
-
-        self.coord: Coord = coord
-
-
-    def react_changes(self):
-        color: str = 'white' if self.observed.state else 'black'
-        self.set_styles(f"background: {color};")
-
-    def render(self):
-        # Devuelve una cadena vacía para no mostrar el nombre del widget
-        return ""
-    
-    def on_click(self):
-        if self.observed.state:
-            self.app.game.deactivate_cell(self.coord.value)
-
-        else:
-            self.app.game.activate_cell(self.coord.value)
-
-
-
-class ConweyBoard(Vertical):
-    children: tuple[ReactBlock]
-    
-    def __init__(self, size_y: int, size_x: int, coord_init: Coord, name = None, id = None, classes = None):
-        super().__init__(name=name, id=id, classes=classes)
-
-        self.size_y: int = size_y
-        self.size_x: int = size_x
-        self.coord_init: Coord = coord_init
-
-        list_coord = [
-            Coord(*coord) 
-            for coord in 
-            gen_coord_off_matriz(
-                self.coord_init.y,
-                self.size_y + self.coord_init.y, 
-                self.coord_init.x, 
-                self.size_x + self.coord_init.x)
-        ]
-
-        for coord in list_coord:
-            self._add_child(ReactBlock(coord))
+    def gen_init_content(self):
+        return {
+            (coord_y, coord_x) : pg.Rect(
+                coord_x * self.size_cell_x,
+                coord_y * self.size_cell_y,
+                self.size_cell_x,
+                self.size_cell_y,
+            ) 
+            for coord_y, coord_x in 
+            gen_coord_off_matriz(0, self.size_y, 0, self.size_x)
+        }
     
 
-    def move_coords_off_children(self, vector: Vector):
-        for child in self.children:
-            child.coord.move(vector)
+    def init_draw(self): 
+        for rect in self.content.values():
+            pg.draw.rect(self.surface, COLOR_BLACK, rect)
+            pg.draw.rect(self.surface, COLOR_BLACK, rect, 1)
 
 
-    def delet_observeds_off_childen(self):
-        for child in self.children:
-            child.delete_observed()
+    def load_view(self, screen: pg.Surface):
+        screen.blit(self.surface, self.topleft)
+
+
+    def get_coord_off_event_click(self, coord_click: tuple[int, int]) -> tuple[int, int]:
+        click_x, click_y = coord_click
+        left, top = self.topleft
+
+        coord_base_y: int = click_y - top
+        coord_base_x: int = click_x - left
+
+        return (coord_base_y // self.size_cell_y, coord_base_x // self.size_cell_x)
+
+
+    def get_coord_off_rect_view(self, coord_cell: tuple[int, int]) -> tuple[int, int]:
+        new_y, new_x = coord_cell
+        return (-self.coord_cursor.y + new_y, -self.coord_cursor.x + new_x)
+
+
+    def get_coord_off_cell(self, coord_rect: tuple[int, int]) -> tuple[int, int]:
+        new_y, new_x = coord_rect
+        return (new_y + self.coord_cursor.y, new_x + self.coord_cursor.x)
 
 
 
-class MacroBoard(Vertical):
-    pass
+    def get_rect(self, coord_cell: tuple[int, int]) -> pg.Rect | None:
+        new_coord: tuple[int, int] = self.get_coord_off_rect_view(coord_cell)
+
+        return self.content.get(new_coord, None)
+
+
+    def load_view_rect(self, coord_cell: tuple[int, int] , color: tuple[int, int, int]):
+        rect: pg.Rect = self.get_rect(coord_cell)
+
+        if rect == None:
+            return
+
+        pg.draw.rect(self.surface, color, rect)
+        pg.draw.rect(self.surface, COLOR_BLACK, rect, 1)
+
+
+    def mov_coord_cursor(self, vector: Vector):
+        self.coord_cursor.move(vector)
+
+
+    def scalar(self, zoom_factor: int): ...
+
+    
+    def verify_click(self, event: pg.event.Event):
+        rect = self.surface.get_rect(topleft = self.topleft)
+
+        return rect.collidepoint(event.pos)
+

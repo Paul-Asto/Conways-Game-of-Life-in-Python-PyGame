@@ -1,15 +1,27 @@
 from src.core.game import ConwayGame
 from src.core.infinite_board import ConwaysInfiniteBoard
+from src.ui.app import ConwaysApp
+from src.ui.widgets import ViewBoard
+from src.data_cells import coords_random_cells
+import asyncio
 
-from src.cardinal import gen_coord_off_matriz
 
-from src.ui.widgets import ReactCell
-from src.ui.app import ConwayApp
-
-
-board = ConwaysInfiniteBoard(ReactCell)
+board = ConwaysInfiniteBoard()
 game  = ConwayGame(board)
-app = ConwayApp(game)
+game.activate_cells(*coords_random_cells)
+
+
+view_board = ViewBoard(
+    topleft= (50, 20), 
+    size= (150, 200), 
+    size_cell=(5, 5),
+    )
+
+app = ConwaysApp(
+    size_window= (1500, 800),
+    game= game,
+    view_board= view_board,
+)
 
 if __name__ == "__main__":
-    app.run()
+    asyncio.run(app.run())
