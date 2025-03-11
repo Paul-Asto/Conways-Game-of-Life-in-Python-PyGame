@@ -43,9 +43,7 @@ class ConwaysApp:
             for coord_cell in  self.game.board.coords_off_active_cell:
                 self.view_board.load_view_rect(coord_cell, COLOR_BLACK)
 
-            await asyncio.sleep(0.1)
-
-
+            await asyncio.sleep(0.1) 
 
         pg.quit()
 
@@ -62,7 +60,6 @@ class ConwaysApp:
                         coord_cell: tuple[int, int] = self.view_board.get_coord_off_cell(coord_rect)
 
                         self.game.switch_cell(coord_cell)
-                        
 
             keys = pg.key.get_pressed()
 

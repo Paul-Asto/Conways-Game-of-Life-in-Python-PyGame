@@ -87,7 +87,7 @@ class ViewBoard:
 
 
     def load_view_rect(self, coord_cell: tuple[int, int] , color: tuple[int, int, int]):
-        rect: pg.Rect = self.get_rect(coord_cell)
+        rect: pg.Rect | None = self.get_rect(coord_cell)
 
         if rect == None:
             return

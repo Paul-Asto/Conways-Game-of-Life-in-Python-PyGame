@@ -65,4 +65,4 @@ coords_matusalen = [
 
 from random import randint
 
-coords_random_cells = [(randint(0, 300), randint( 0, 300)) for _ in range(10000)]
+coords_random_cells = [(randint(0, 300), randint( 0, 300)) for _ in range(20000)]
