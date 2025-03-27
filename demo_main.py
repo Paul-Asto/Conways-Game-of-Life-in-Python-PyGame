@@ -95,7 +95,7 @@ async def read_events():
         if keyboard.is_pressed("right"):
             view_board.mov_coords(VECTOR_RIGHT)
 
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.001)
 
 
 async def update_screen():

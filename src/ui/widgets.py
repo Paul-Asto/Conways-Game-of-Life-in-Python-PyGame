@@ -21,7 +21,7 @@ class ViewBoard:
         
         self.zoom_factor: float = 1
         self.change_zoom_factor: float = 0.1
-        self.min_zoom: float = 0.75
+        self.min_zoom: float = 0.4
         self.max_zoom: float = 4
 
         self.coord_cursor: Coord = Coord(0, 0)
@@ -70,28 +70,10 @@ class ViewBoard:
     def size_cell_x(self) -> int:
         return int(self.zoom_factor * self.init_size_cell_x)
     
-    def update_content(self):
-        for coord, rect in self.content.items():
-            y, x = coord
-            rect.left = x * self.size_cell_x
-            rect.top =  y * self.size_cell_y
-            rect.width = self.size_cell_x
-            rect.height = self.size_cell_y
-        
-        if self.zoom_factor > 3:
-            for rect in self.content.values():
-                pg.draw.rect(self.big_surface, COLOR_BLACK, rect)
-                pg.draw.rect(self.big_surface, COLOR_WHITE, rect, 1)
-        
-        else:
-            for rect in self.content.values():
-                pg.draw.rect(self.big_surface, COLOR_BLACK, rect)
-                pg.draw.rect(self.big_surface, COLOR_BLACK, rect, 1)
-
 
     def load_view(self, screen: pg.Surface):
-        
-        self.view_surface.blit(self.big_surface, self.topleft_to_big)
+        scaled_surface = pg.transform.scale(self.big_surface, (self.size_big_x * self.zoom_factor, self.size_big_y * self.zoom_factor))
+        self.view_surface.blit(scaled_surface, self.topleft_to_big)
         screen.blit(self.view_surface, self.topleft_to_main)
 
 
@@ -121,41 +103,35 @@ class ViewBoard:
 
         return self.content.get(new_coord, None)
 
+    def draw(self, color: tuple[int, int, int]):
+        for rect in self.content.values():
+            self.draw_rect(rect, color)
 
-    def load_view_rect(self, coord_cell: tuple[int, int] , color: tuple[int, int, int]):
-        rect: pg.Rect = self.get_rect(coord_cell)
+    def draw_cells(self, *coords_cells: tuple[int, int] , color: tuple[int, int, int]):
+        for coord_cell in coords_cells:
+            rect: pg.Rect = self.get_rect(coord_cell)
 
-        if rect == None:
-            return
+            if rect == None:
+                continue
 
-        self.draw_cell(rect, color)
+            self.draw_rect(rect, color)
     
-    def draw_cell(self, rect, color: tuple[int, int, int]):
+    
+    def draw_rect(self, rect, color: tuple[int, int, int]):
         pg.draw.rect(self.big_surface, color, rect)
-
-        if self.zoom_factor > 3:  
-            pg.draw.rect(self.big_surface, COLOR_WHITE, rect, 1)
-        else:      
-            pg.draw.rect(self.big_surface, COLOR_BLACK, rect, 1)
+        pg.draw.rect(self.big_surface, COLOR_BLACK, rect, 1)
 
 
     def mov_coord_cursor(self, vector: Vector):
         self.coord_cursor.move(vector)
     
-
-
     def maximize_scale(self):
         new_zoom = self.zoom_factor + (self.zoom_factor * self.change_zoom_factor)
         self.zoom_factor = min( new_zoom, self.max_zoom)
-        self.update_content()
-
 
     def minimize_scale(self): 
         new_zoom = self.zoom_factor - (self.zoom_factor * self.change_zoom_factor)
         self.zoom_factor = max(new_zoom, self.min_zoom)
-        self.update_content()
-
-
     
     def verify_click(self, coord: tuple[int, int]):
         rect = self.big_surface.get_rect(topleft = self.topleft_to_main)

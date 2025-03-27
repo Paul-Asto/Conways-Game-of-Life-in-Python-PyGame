@@ -19,7 +19,7 @@ class ConwaysApp:
         self.game: ConwayGame = game
         self.view_board: ViewBoard = view_board
         self.running: bool = True
-        self.running_game = False
+        self.running_game: bool = False
 
         self.mouse_in_pressed: bool = False
         self.ultimate_coord_mouse: tuple[int, int] = (0, 0)
@@ -56,17 +56,17 @@ class ConwaysApp:
                             self.game.switch_cell(coord_cell)
                             self.ultimate_coord_mouse = coord_rect
 
-            for coord_cell in  self.game.board.coords_off_active_cell:
-                self.view_board.load_view_rect(coord_cell, COLOR_WHITE)
+            self.view_board.big_surface.fill((0, 0, 0))
+            self.view_board.draw_cells(
+                *self.game.board.coords_off_active_cell,
+                color= COLOR_WHITE,
+            )
 
             # Dibujar la sub-superficie dentro de la pantalla principal
             self.view_board.load_view(self.screen)
 
             pg.display.flip()
             clock.tick(60)
-
-            for coord_cell in  self.game.board.coords_off_active_cell:
-                self.view_board.load_view_rect(coord_cell, COLOR_BLACK)
 
             await asyncio.sleep(0.1)
 
@@ -112,7 +112,7 @@ class ConwaysApp:
                 self.view_board.mov_coord_cursor(VECTOR_RIGHT)
 
 
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.0001)
     
     
     async def iteration_game(self):
@@ -120,4 +120,4 @@ class ConwaysApp:
             if self.running_game:
                 self.game.next_turn()
 
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(0.1)
