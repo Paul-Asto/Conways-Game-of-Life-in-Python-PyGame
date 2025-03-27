@@ -1,5 +1,5 @@
 from src.core.infinite_board import ConwaysInfiniteBoard
-from src.cardinal import (
+from src.coordinate import (
     Coord,
 
     VECTOR_UP,

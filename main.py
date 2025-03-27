@@ -13,7 +13,8 @@ game.activate_cells(*coords_random_cells)
 
 view_board = ViewBoard(
     topleft= (50, 20), 
-    size= (150, 200), 
+    size= (1100, 700), 
+    view_size= (1100, 700),
     size_cell=(5, 5),
     )
 
@@ -25,3 +26,5 @@ app = ConwaysApp(
 
 if __name__ == "__main__":
     asyncio.run(app.run())
+
+

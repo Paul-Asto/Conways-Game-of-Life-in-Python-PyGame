@@ -2,10 +2,10 @@ from src.core.game import ConwayGame
 from src.core.infinite_board import ConwaysInfiniteBoard
 from src.data_cells import coords_random_cells
 
-from src.cardinal import gen_coord_off_matriz                
+from src.coordinate import gen_coord_off_matriz                
 
 
-from src.cardinal import (
+from src.coordinate import (
     Coord,
     VECTOR_DOWN,
     VECTOR_LEFT,
@@ -62,33 +62,61 @@ game.activate_cells(
     *coords_random_cells
 )
 
-ciclos = 1
 
-while True:
-    print("\033[H\033[J", end="")
-    print(view_board.view())
-    print()
-    print(f"Coordenada: actual: ", view_board.coords[0].value)
-    print(f"Total de celdas vivas: {len(game.board.content)}")
 
-    if len(game.board.content) == 0:
-        break
+
+import asyncio
+
+async def main():
+
     
-    if keyboard.is_pressed("up"):
-        view_board.mov_coords(VECTOR_UP)
+    task_1 = asyncio.create_task(read_events())
+    task_2 = asyncio.create_task(update_screen())
 
-    if keyboard.is_pressed("down"):
-        view_board.mov_coords(VECTOR_DOWN)          
+    await task_1
+    await task_2
 
-    if keyboard.is_pressed("left"):
-        view_board.mov_coords(VECTOR_LEFT)
 
-    if keyboard.is_pressed("right"):
-        view_board.mov_coords(VECTOR_RIGHT)
 
-    ciclos += 1
+async def read_events():
+    while True:
+        if len(game.board.content) == 0:
+            break
+        
+        if keyboard.is_pressed("up"):
+            view_board.mov_coords(VECTOR_UP)
 
-    game.next_turn()
-    sleep(0.1)
+        if keyboard.is_pressed("down"):
+            view_board.mov_coords(VECTOR_DOWN)          
 
-print("Ciclos totales: ", ciclos)
+        if keyboard.is_pressed("left"):
+            view_board.mov_coords(VECTOR_LEFT)
+
+        if keyboard.is_pressed("right"):
+            view_board.mov_coords(VECTOR_RIGHT)
+
+        await asyncio.sleep(0.001)
+
+
+async def update_screen():
+    ciclos = 1
+    while True:
+        print("\033[H\033[J", end="")
+        print(view_board.view())
+        print()
+        print(f"Coordenada: actual: ", view_board.coords[0].value)
+        print(f"Total de celdas vivas: {len(game.board.content)}")
+
+        if len(game.board.content) == 0:
+            break
+
+        ciclos += 1
+
+        game.next_turn()
+        await asyncio.sleep(0.1)
+
+    print("Ciclos totales: ", ciclos)
+
+
+
+asyncio.run(main())
